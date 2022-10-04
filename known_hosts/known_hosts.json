@@ -1,8 +1,16 @@
 [
     {
-        "lmello-ubuntuhomeserver": {
+        "device": {
+            "name": "lmello-ubuntuhomeserver",
             "ip": "192.168.1.218",
             "mac": "46:04:07:e9:aa:de"
+        }
+    },
+    {
+        "device": {
+            "name": "lmello-laptop",
+            "ip": "192.168.1.122",
+            "mac": "6C-94-66-56-D1-3C"
         }
     }
 ]
