@@ -1,15 +1,15 @@
 package com.onoff;
 
+import java.io.Console;
 import java.util.Scanner;
-
-import com.jcraft.jsch.JSchException;
-
 public class CLI {
     private Scanner keyboard;
+    private Console console;
     private SSH ssh = new SSH();
 
     public CLI() {
         this.keyboard = new Scanner(System.in);
+        this.console = System.console();
     }
 
     private int menuGui() {
@@ -45,15 +45,9 @@ public class CLI {
                 String username = keyboard.next();
 
                 System.out.print("Password: ");
-                String password = keyboard.next();
+                String password = new String(console.readPassword());
 
-                try {
-                    ssh.shutdown(ip, username, password);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (JSchException e) {
-                    e.printStackTrace();
-                }
+                ssh.shutdown(ip, username, password);
 
                 break;
             case 3:
