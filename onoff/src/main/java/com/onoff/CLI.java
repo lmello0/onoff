@@ -6,6 +6,7 @@ public class CLI {
     private Scanner keyboard;
     private Console console;
     private SSH ssh = new SSH();
+    private KnownHosts knownHosts = new KnownHosts();
 
     public CLI() {
         this.keyboard = new Scanner(System.in);
@@ -13,18 +14,19 @@ public class CLI {
     }
 
     private int menuGui() {
-        System.out.println("|------------------|");
-        System.out.println("|     - MENU -     |");
-        System.out.println("|------------------|");
-        System.out.println("|  1. Ligar PC     |");
-        System.out.println("|  2. Desligar PC  |");
-        System.out.println("|  3. Reiniciar PC |");
-        System.out.println("|  4. Sair         |");
-        System.out.println("|------------------|");
+        System.out.println("|--------------------------|");
+        System.out.println("|         - MENU -         |");
+        System.out.println("|--------------------------|");
+        System.out.println("|  1. Ligar PC             |");
+        System.out.println("|  2. Desligar PC          |");
+        System.out.println("|  3. Reiniciar PC         |");
+        System.out.println("|  4. Listar dispositivos  |");
+        System.out.println("|  5. Sair                 |");
+        System.out.println("|--------------------------|");
 
 
         System.out.println();
-        System.out.print("Choose [1 - 4]: ");
+        System.out.print("Choose [1 - 5]: ");
         int option = keyboard.nextInt();
 
         return option;
@@ -54,6 +56,9 @@ public class CLI {
                 System.out.println("WIP");
                 break;
             case 4:
+                System.out.println(knownHosts.printDevices());
+                break;
+            case 5:
                 System.out.println("Bye!");
                 System.exit(0);
                 break;
