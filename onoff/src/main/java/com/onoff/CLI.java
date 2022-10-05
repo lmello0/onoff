@@ -17,11 +17,13 @@ public class CLI {
         System.out.println("|--------------------------|");
         System.out.println("|         - MENU -         |");
         System.out.println("|--------------------------|");
-        System.out.println("|  1. Ligar PC             |");
-        System.out.println("|  2. Desligar PC          |");
-        System.out.println("|  3. Reiniciar PC         |");
-        System.out.println("|  4. Listar dispositivos  |");
-        System.out.println("|  5. Sair                 |");
+        System.out.println("|  1. Turn on device       |");
+        System.out.println("|  2. Turn off device      |");
+        System.out.println("|  3. Reboot device        |");
+        System.out.println("|  4. List device          |");
+        System.out.println("|  5. Add device           |");
+        System.out.println("|  6. Remove device        |");
+        System.out.println("|  7. Exit                 |");
         System.out.println("|--------------------------|");
 
 
@@ -35,19 +37,21 @@ public class CLI {
     public void menuChooser() {
         int option = menuGui();
 
+        String ip, username, password, mac, deviceName;
+
         switch(option){
             case 1:
                 System.out.println("WIP");
                 break;
             case 2:
                 System.out.print("IP: ");
-                String ip = keyboard.next();
+                ip = keyboard.next();
 
                 System.out.print("Username: ");
-                String username = keyboard.next();
+                username = keyboard.next();
 
                 System.out.print("Password: ");
-                String password = new String(console.readPassword());
+                password = new String(console.readPassword());
 
                 ssh.shutdown(ip, username, password);
 
@@ -56,9 +60,26 @@ public class CLI {
                 System.out.println("WIP");
                 break;
             case 4:
-                System.out.println(knownHosts.printDevices());
+                // System.out.println(knownHosts.printDevices());
                 break;
             case 5:
+                System.out.print("Device name: ");
+                deviceName = keyboard.next();
+                
+                System.out.print("IP: ");
+                ip = keyboard.next();
+
+                System.out.print("Mac: ");
+                mac = keyboard.next();
+
+                break;
+            case 6:
+                System.out.print("Device name: ");
+                deviceName = keyboard.next();
+
+                // knownHosts.deleteDeviceObject(deviceName);
+                break;
+            case 7:
                 System.out.println("Bye!");
                 System.exit(0);
                 break;
