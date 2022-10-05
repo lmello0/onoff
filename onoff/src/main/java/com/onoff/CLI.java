@@ -28,7 +28,7 @@ public class CLI {
 
 
         System.out.println();
-        System.out.print("Choose [1 - 5]: ");
+        System.out.print("Choose [1 - 7]: ");
         int option = keyboard.nextInt();
 
         return option;
@@ -60,7 +60,7 @@ public class CLI {
                 System.out.println("WIP");
                 break;
             case 4:
-                // System.out.println(knownHosts.printDevices());
+                System.out.println(knownHosts.printDevices());
                 break;
             case 5:
                 System.out.print("Device name: ");
@@ -72,6 +72,7 @@ public class CLI {
                 System.out.print("Mac: ");
                 mac = keyboard.next();
 
+                knownHosts.addDeviceObject(deviceName, ip, mac);
                 break;
             case 6:
                 System.out.print("Device name: ");
