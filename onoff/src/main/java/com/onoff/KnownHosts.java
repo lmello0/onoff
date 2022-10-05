@@ -31,32 +31,31 @@ public class KnownHosts {
 
     public static void main(String[] args) {
         KnownHosts knownHosts = new KnownHosts();
-        System.out.println(knownHosts.devices);
+        System.out.println(knownHosts.getIp("lmello-ubuntuhomeserver"));
+        System.out.println(knownHosts.getMac("lmello-ubuntuhomeserver"));
     }
 
-    // public String getIp(String device_name) {
-    //     for(int i = 0; i < devices.size(); i++) {
-    //         JSONObject device = parseDeviceObject((JSONObject) devices.get(i));
-            
-    //         if (device.get("name").equals(device_name)) {
-    //             return (String) device.get("ip");
-    //         }
-    //     }
+    public String getIp(String device_name) {
+        JSONArray devicesArray = devices.getJSONArray("devices");
+        for (int i = 0; i < devicesArray.length(); i++) {
+            if (devicesArray.getJSONObject(i).getJSONObject("device").getString("name").equals(device_name)){
+                return devicesArray.getJSONObject(i).getJSONObject("device").getString("ip");
+            }
+        }
 
-    //     return "Not found ip with the given device name!";
-    // }
+        return "Not found ip with the given device name!";
+    }
 
-    // public String getMac(String device_name) {
-    //     for(int i = 0; i < devices.size(); i++) {
-    //         JSONObject device = parseDeviceObject((JSONObject) devices.get(i));
-            
-    //         if (device.get("name").equals(device_name)) {
-    //             return (String) device.get("mac");
-    //         }
-    //     }
+    public String getMac(String device_name) {
+        JSONArray devicesArray = devices.getJSONArray("devices");
+        for (int i = 0; i < devicesArray.length(); i++) {
+            if (devicesArray.getJSONObject(i).getJSONObject("device").getString("name").equals(device_name)){
+                return devicesArray.getJSONObject(i).getJSONObject("device").getString("mac");
+            }
+        }
 
-    //     return "Not found MAC with the given device name!";
-    // }
+        return "Not found MAC with the given device name!";
+    }
 
     // private JSONObject parseDeviceObject(JSONObject device) {
     //     return (JSONObject) device.get("device");
@@ -82,43 +81,43 @@ public class KnownHosts {
     //     }
     // }
 
-    // public String printDevices() {
-    //     String devicesString = new String();
-    //     String deviceLine = new String();
-    //     devicesString = "|--------------------------------|\n|        - DISPOSITIVOS -        |\n|--------------------------------|\n";
+    public String printDevices() {
+        String devicesString = new String();
+        String deviceLine = new String();
+        devicesString = "|--------------------------------|\n|        - DISPOSITIVOS -        |\n|--------------------------------|\n";
 
-    //     int cont = 1;
-    //     int lineLength = 32;
+        int cont = 1;
+        int lineLength = 32;
 
-    //     for (int i = 0; i < devices.size(); i++) {
-    //         JSONObject deviceJson = parseDeviceObject((JSONObject) devices.get(i));
+        for (int i = 0; i < devices.size(); i++) {
+            JSONObject deviceJson = parseDeviceObject((JSONObject) devices.get(i));
 
-    //         deviceLine = "| " + cont + ". " + deviceJson.get("name");
-    //         while (deviceLine.length() <= lineLength) {
-    //             deviceLine = deviceLine + " ";
-    //         }
-    //         deviceLine = deviceLine + "|\n";
+            deviceLine = "| " + cont + ". " + deviceJson.get("name");
+            while (deviceLine.length() <= lineLength) {
+                deviceLine = deviceLine + " ";
+            }
+            deviceLine = deviceLine + "|\n";
             
-    //         deviceLine = deviceLine + "|      - ip: " + deviceJson.get("ip");
-    //         while(deviceLine.length() <= ((lineLength+2)*2)-1) {
-    //                 deviceLine = deviceLine + " ";
-    //         }
-    //         deviceLine = deviceLine + "|\n";
+            deviceLine = deviceLine + "|      - ip: " + deviceJson.get("ip");
+            while(deviceLine.length() <= ((lineLength+2)*2)-1) {
+                    deviceLine = deviceLine + " ";
+            }
+            deviceLine = deviceLine + "|\n";
 
-    //         deviceLine = deviceLine + "|      - mac: " + deviceJson.get("mac");
-    //         while(deviceLine.length() <= ((lineLength+2)*3)) {
-    //             deviceLine = deviceLine + " ";
-    //         }
-    //         deviceLine = deviceLine + "|\n|                                |\n";
+            deviceLine = deviceLine + "|      - mac: " + deviceJson.get("mac");
+            while(deviceLine.length() <= ((lineLength+2)*3)) {
+                deviceLine = deviceLine + " ";
+            }
+            deviceLine = deviceLine + "|\n|                                |\n";
 
-    //         devicesString = devicesString + deviceLine;
+            devicesString = devicesString + deviceLine;
 
-    //         cont += 1;
-    //     }
+            cont += 1;
+        }
 
-    //     devicesString = devicesString + "|--------------------------------|\n";
+        devicesString = devicesString + "|--------------------------------|\n";
 
 
-    //     return devicesString;
-    // }
+        return devicesString;
+    }
 }
