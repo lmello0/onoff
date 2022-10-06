@@ -1,18 +1,25 @@
 {
-    "devices" : [
-            {
-                "device": {
-                    "name": "lmello-ubuntuhomeserver",
-                    "ip": "192.168.1.218",
-                    "mac": "46:04:07:e9:aa:de"
-                }
-            },
-            {
-                "device": {
-                    "name": "lmello-laptop",
-                    "ip": "192.168.1.122",
-                    "mac": "6C-94-66-56-D1-3C"
-                }
+    "devices": [
+        {
+            "device": {
+                "ip": "192.168.1.218",
+                "name": "lmello-ubuntuhomeserver",
+                "mac": "46:04:07:e9:aa:de"
             }
+        },
+        {
+            "device": {
+                "ip": "192.168.1.122",
+                "name": "lmello-laptop",
+                "mac": "6C:94:66:56:D1:3C"
+            }
+        },
+        {
+            "device": {
+                "ip": "127.0.0.1",
+                "name": "local",
+                "mac": "11:22:33:44:55:66"
+            }
+        }
     ]
 }

@@ -34,26 +34,80 @@ public class CLI {
         return option;
     }
 
+    private int menuTurnOff() {
+        System.out.println("|---------------------------|");
+        System.out.println("|      Turn off device      |");
+        System.out.println("|---------------------------|");
+        System.out.println("|  1. IP                    |");
+        System.out.println("|  2. Mac                   |");
+        System.out.println("|  3. Name                  |");
+        System.out.println("|  4. Back                  |");
+        System.out.println("|---------------------------|");
+
+        System.out.println();
+        System.out.print("Choose [1 - 4]: ");
+        int option = keyboard.nextInt();
+
+        return option;
+    }
+
     public void menuChooser() {
         int option = menuGui();
 
-        String ip, username, password, mac, deviceName;
+        String ip = null, mac = null, name = null, username = null, password = null, deviceName = null;
 
         switch(option){
             case 1:
                 System.out.println("WIP");
                 break;
             case 2:
-                System.out.print("IP: ");
-                ip = keyboard.next();
+                int menuTurnOff = menuTurnOff();
+                switch(menuTurnOff){
+                    case 1:
+                        System.out.print("IP: ");
+                        ip = keyboard.next();
 
-                System.out.print("Username: ");
-                username = keyboard.next();
+                        System.out.print("Username: ");
+                        username = keyboard.next();
 
-                System.out.print("Password: ");
-                password = new String(console.readPassword());
+                        System.out.print("Password: ");
+                        password = new String(console.readPassword());
+                        break;
+                    case 2:
+                        System.out.print("MAC: ");
+                        mac = keyboard.next();
 
-                ssh.shutdown(ip, username, password);
+                        System.out.print("Username: ");
+                        username = keyboard.next();
+
+                        System.out.print("Password: ");
+                        password = new String(console.readPassword());
+
+                        ip = knownHosts.getIp(mac);
+                        break;
+                    case 3:
+                        System.out.print("Device name: ");
+                        deviceName = keyboard.next();
+
+                        System.out.print("Username: ");
+                        username = keyboard.next();
+
+                        System.out.print("Password: ");
+                        password = new String(console.readPassword());
+
+                        ip = knownHosts.getIp(deviceName);
+                    case 4:
+                        break;
+                    default:
+                        System.out.println("Invalid option!");
+                }
+
+                if (!(ip == null && username == null && password == null)){
+                    ssh.shutdown(ip, username, password);
+                    break;
+                } else if (menuTurnOff != 4) {
+                    System.out.println("Invalid parameters!");
+                }
 
                 break;
             case 3:
@@ -70,7 +124,7 @@ public class CLI {
                 ip = keyboard.next();
 
                 System.out.print("Mac: ");
-                mac = keyboard.next();
+                mac = keyboard.next().replace("-", ":");
 
                 knownHosts.addDeviceObject(deviceName, ip, mac);
                 break;
@@ -78,7 +132,7 @@ public class CLI {
                 System.out.print("Device name: ");
                 deviceName = keyboard.next();
 
-                // knownHosts.deleteDeviceObject(deviceName);
+                knownHosts.deleteDeviceObject(deviceName);
                 break;
             case 7:
                 System.out.println("Bye!");

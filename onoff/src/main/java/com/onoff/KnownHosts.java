@@ -1,24 +1,20 @@
 package com.onoff;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONPointer;
 import org.json.JSONTokener;
 
 public class KnownHosts {
     private InputStream jsonFile = null;
     private JSONObject devices = null;
-    private String path = "known_hosts/known_hosts.json"; 
+    private String path = "known_hosts/known_hosts.json";
+    final private String macRegex = "((\\d\\w|\\w\\d|\\d{2}|\\w{2})\\:){5}((\\d\\w|\\w\\d|\\d{2}|\\w{2}))";
 
     public KnownHosts() {
         try {
@@ -31,10 +27,17 @@ public class KnownHosts {
         devices = new JSONObject(tokener);
     }
 
-    public String getIp(String device_name) {
+    public String getIp(String attribute) {
+        String attributeFinder = "name";
+
+        if (attribute.matches(macRegex)) {
+            attributeFinder = "mac";
+        }
+        
+
         JSONArray devicesArray = devices.getJSONArray("devices");
         for (int i = 0; i < devicesArray.length(); i++) {
-            if (devicesArray.getJSONObject(i).getJSONObject("device").getString("name").equals(device_name)){
+            if (devicesArray.getJSONObject(i).getJSONObject("device").getString(attributeFinder).equals(attribute)){
                 return devicesArray.getJSONObject(i).getJSONObject("device").getString("ip");
             }
         }
@@ -42,10 +45,10 @@ public class KnownHosts {
         return "Not found ip with the given device name!";
     }
 
-    public String getMac(String device_name) {
+    public String getMac(String deviceName) {
         JSONArray devicesArray = devices.getJSONArray("devices");
         for (int i = 0; i < devicesArray.length(); i++) {
-            if (devicesArray.getJSONObject(i).getJSONObject("device").getString("name").equals(device_name)){
+            if (devicesArray.getJSONObject(i).getJSONObject("device").getString("name").equals(deviceName)){
                 return devicesArray.getJSONObject(i).getJSONObject("device").getString("mac");
             }
         }
@@ -53,25 +56,21 @@ public class KnownHosts {
         return "Not found MAC with the given device name!";
     }
 
-    // private JSONObject parseDeviceObject(JSONObject device) {
-    //     return (JSONObject) device.get("device");
-
-    // }
-
     public void addDeviceObject(String name, String ip, String mac){
-        System.out.println(devices);
         JSONObject deviceInfo = new JSONObject();
         deviceInfo.put("name", name);
         deviceInfo.put("ip", ip);
         deviceInfo.put("mac", mac);
-        
+
         JSONObject device = new JSONObject();
         device.put("device", deviceInfo);
 
-        devices.put("devices", device);
-        System.out.println(devices.toString());
+        JSONArray deviceArray = devices.getJSONArray("devices");
+        deviceArray.put(device);
 
-        // writeJsonToFile(devices);
+        devices.put("devices", deviceArray);
+
+        writeJsonToFile(devices);
     }
 
     private void writeJsonToFile(JSONObject json){
@@ -87,15 +86,17 @@ public class KnownHosts {
         }
     }
 
-    // public void deleteDeviceObject(String deviceName) {
-    //     for(int i = 0; i < devices.size(); i++){
-    //         JSONObject device = parseDeviceObject((JSONObject) devices.get(i));
+    public void deleteDeviceObject(String deviceName) {
+        JSONArray devicesArray = devices.getJSONArray("devices");
+        for (int i = 0; i < devicesArray.length(); i++) {
+            if (devicesArray.getJSONObject(i).getJSONObject("device").getString("name").equals(deviceName)){
+                devicesArray.remove(i);
 
-    //         if (device.get("name").equals(deviceName)) {
-    //             devices.remove(devices.get(i));
-    //         }
-    //     }
-    // }
+                devices.put("devices", devicesArray);
+                writeJsonToFile(devices);
+            }
+        }
+    }
 
     public String printDevices() {
         JSONArray devicesArray = devices.getJSONArray("devices");
