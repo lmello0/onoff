@@ -1,107 +1,143 @@
 package com.onoff;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
+
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.regex.Matcher;
+import java.net.DatagramSocket;
+import java.net.DatagramPacket;
+import java.net.SocketException;
+
+import java.lang.IllegalArgumentException;
+import java.lang.StringBuffer;
+
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
-public class WakeOnLan {
-    private static String[] validateMac(String mac) throws IllegalArgumentException {
-        mac = mac.replace(";", ":");
-        String newMac = "";
 
-        if (mac.matches("([a-zA-Z0-9]){12}")) {
-            for (int i = 0; i < mac.length(); i++) {
-                if ((i > 1) && (i % 2 == 0)) {
-                    newMac += ":";
-                }
-                newMac += mac.charAt(i);
-            }
-        } else {
-            newMac = mac;
-        }
+/**
+ *	@desc	Static WOL magic packet class
+ */
+public class WakeOnLan
+{
+	public static final String BROADCAST = "192.168.1.255";
+	public static final int PORT = 9;
+	public static final char SEPARATOR = ':';
 
-        final Pattern pattern = Pattern.compile("((([0-9a-fA-F]){2}[-:]){5}([0-9a-fA-F]){2})");
-        final Matcher matcher = pattern.matcher(newMac);
+	public static String send(String mac, String ip) throws UnknownHostException, SocketException, IOException, IllegalArgumentException
+	{
+		return send(mac, ip, PORT);
+	}
 
-        if (matcher.find()) {
-            String result = matcher.group();
-            return result.split("(\\:|\\-)");
-        } else {
-            throw new IllegalArgumentException("Invalid MAC address");
-        }
-    }
+	public static String send(String mac, String ip, int port) throws UnknownHostException, SocketException, IOException, IllegalArgumentException
+	{
+		// validate MAC and chop into array
+		final String[] hex = validateMac(mac);
 
-    public static String cleanMac(String mac) throws IllegalArgumentException {
-        final String[] hex = validateMac(mac);
+		// convert to base16 bytes
+		final byte[] macBytes = new byte[6];
+		for(int i=0; i<6; i++) {
+			macBytes[i] = (byte) Integer.parseInt(hex[i], 16);
+		}
 
-        StringBuffer sb = new StringBuffer();
-        boolean isMixedCase = false;
+		final byte[] bytes = new byte[102];
 
-        for (int i = 0; i < 6; i++){
-            sb.append(hex[i]);
-        }
+		// fill first 6 bytes
+		for(int i=0; i<6; i++) {
+			bytes[i] = (byte) 0xff;
+		}
+		// fill remaining bytes with target MAC
+		for(int i=6; i<bytes.length; i+=macBytes.length) {
+			System.arraycopy(macBytes, 0, bytes, i, macBytes.length);
+		}
 
-        String testMac = sb.toString();
+		// create socket to IP
+		final InetAddress address = InetAddress.getByName(ip);
+		final DatagramPacket packet = new DatagramPacket(bytes, bytes.length, address, port);
+		final DatagramSocket socket = new DatagramSocket();
+		socket.send(packet);
+		socket.close();
 
-        if((testMac.toLowerCase().equals(testMac) == false) && (testMac.toUpperCase().equals(testMac) == false)) {
+		return hex[0]+SEPARATOR+hex[1]+SEPARATOR+hex[2]+SEPARATOR+hex[3]+SEPARATOR+hex[4]+SEPARATOR+hex[5];
+	}
+
+	public static String cleanMac(String mac) throws IllegalArgumentException
+	{
+		final String[] hex = validateMac(mac);
+
+		StringBuffer sb = new StringBuffer();
+		boolean isMixedCase = false;
+
+		// check for mixed case
+		for(int i=0; i<6; i++) {
+			sb.append(hex[i]);
+		}
+		String testMac = sb.toString();
+		if((testMac.toLowerCase().equals(testMac) == false) && (testMac.toUpperCase().equals(testMac) == false)) {
 			isMixedCase = true;
 		}
 
-        sb = new StringBuffer();
-        for(int i=0; i<6; i++) {
+		sb = new StringBuffer();
+		for(int i=0; i<6; i++) {
+			// convert mixed case to lower
 			if(isMixedCase == true) {
 				sb.append(hex[i].toLowerCase());
 			}else{
 				sb.append(hex[i]);
 			}
 			if(i < 5) {
-				sb.append(":");
+				sb.append(SEPARATOR);
 			}
 		}
+		return sb.toString();
+	}
 
-        return sb.toString();
-    }
+	private static String[] validateMac(String mac) throws IllegalArgumentException
+	{
+		// error handle semi colons
+		mac = mac.replace(";", ":");
 
-    public static String send(String mac, String ip) throws UnknownHostException, SocketException, IOException, IllegalArgumentException {
-        final String[] hex = validateMac(mac);
+		// attempt to assist the user a little
+		String newMac = "";
 
-        final byte[] macBytes = new byte[6];
-        for (int i = 0; i < 6; i++) {
-            macBytes[i] = (byte) Integer.parseInt(hex[i], 16);
-        }
+		if(mac.matches("([a-zA-Z0-9]){12}")) {
+			// expand 12 chars into a valid mac address
+			for(int i=0; i<mac.length(); i++){
+				if((i > 1) && (i % 2 == 0)) {
+					newMac += ":";
+				}
+				newMac += mac.charAt(i);
+			}
+		}else{
+			newMac = mac;
+		}
 
-        final byte[] bytes = new byte[102];
+		// regexp pattern match a valid MAC address
+		final Pattern pat = Pattern.compile("((([0-9a-fA-F]){2}[-:]){5}([0-9a-fA-F]){2})");
+		final Matcher m = pat.matcher(newMac);
 
-        for (int i = 0; i < 6; i++) {
-            bytes[i] = (byte) 0xff;
-        }
+		if(m.find()) {
+			String result = m.group();
+			return result.split("(\\:|\\-)");
+		}else{
+			throw new IllegalArgumentException("Invalid MAC address");
+		}
+	}
 
-        for (int i = 6; i < bytes.length; i += macBytes.length) {
-            System.arraycopy(macBytes, 0, bytes, i, macBytes.length);
-        }
+	public static void main(String[] args) {
+		// if(args.length != 2) {
+		// 	System.out.println("Usage: java MagicPacket <broadcast-ip> <mac-address>");
+		// 	System.out.println("Example: java MagicPacket 192.168.0.255 00:0D:61:08:22:4A");
+		// 	System.out.println("Example: java MagicPacket 192.168.0.255 00-0D-61-08-22-4A");
+		// 	System.exit(1);
+		// }
 
-        final InetAddress address = InetAddress.getByName(ip);
-        final DatagramPacket packet = new DatagramPacket(bytes, bytes.length, address, 22);
-        final DatagramSocket socket = new DatagramSocket();
-        
-        socket.send(packet);
-        socket.isClosed();
-        
-        return hex[0] + ":" + hex[1] + ":" + hex[2] + ":" + hex[3] + ":" + hex[4] + ":" + hex[5];
-    }
+		String ipStr = "192.168.0.213";
+		String macStr = "a4:2b:b0:27:73:14";
 
-    public static void main(String[] args) {
-        String ipStr = "192.168.1.218";
-        String macStr = "46:04:07:e9:aa:de";
-
-        try	{
+		try	{
 			macStr = WakeOnLan.cleanMac(macStr);
-			System.out.println("Sending to: "+ macStr);
+			System.out.println("Sending to: "+macStr);
 			WakeOnLan.send(macStr, ipStr);
 		}
 		catch(IllegalArgumentException e) {
@@ -109,5 +145,6 @@ public class WakeOnLan {
 		}catch(Exception e) {
 			System.out.println("Failed to send Wake-on-LAN packet:" + e.getMessage());
 		}
-    }
+	}
+
 }

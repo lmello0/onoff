@@ -15,6 +15,7 @@ public class KnownHosts {
     private JSONObject devices = null;
     private String path = "known_hosts/known_hosts.json";
     final private String macRegex = "((\\d\\w|\\w\\d|\\d{2}|\\w{2})\\:){5}((\\d\\w|\\w\\d|\\d{2}|\\w{2}))";
+    final private String ipRegex = "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$";
 
     public KnownHosts() {
         try {
@@ -42,18 +43,24 @@ public class KnownHosts {
             }
         }
 
-        return "Not found ip with the given device name!";
+        return "Not found ip with the given attribute";
     }
 
-    public String getMac(String deviceName) {
+    public String getMac(String attribute) {
+        String attributeFinder = "name";
+
+        if (attribute.matches(ipRegex)) {
+            attributeFinder = "ip";
+        }
+
         JSONArray devicesArray = devices.getJSONArray("devices");
         for (int i = 0; i < devicesArray.length(); i++) {
-            if (devicesArray.getJSONObject(i).getJSONObject("device").getString("name").equals(deviceName)){
+            if (devicesArray.getJSONObject(i).getJSONObject("device").getString(attributeFinder).equals(attribute)){
                 return devicesArray.getJSONObject(i).getJSONObject("device").getString("mac");
             }
         }
 
-        return "Not found MAC with the given device name!";
+        return "Not found MAC with the given attribute!";
     }
 
     public void addDeviceObject(String name, String ip, String mac){
